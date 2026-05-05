@@ -1,0 +1,17 @@
+telegram:
+  api_id: "${API_ID}"
+  api_hash: "${API_HASH}"
+
+accounts:
+  - session_file: "sessions/account1.session"
+    # active_hours не задан → аккаунт работает 24/7 (удобно для тестирования)
+
+mappings:
+  - merchant_chat: -1003944954320
+    support_chat: -1003943086535
+
+human_delay:
+  min_seconds: 1
+  max_seconds: 4
+
+timezone: "Europe/Moscow"
