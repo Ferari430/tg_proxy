@@ -1,7 +1,8 @@
 .env
 sessions/
 .claude/
-initial.md
+*.md
+!docks/*.md
 __pycache__/
 *.pyc
 *.pyo
