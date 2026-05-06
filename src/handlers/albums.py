@@ -64,7 +64,7 @@ async def handle_album(
     if not isinstance(sent, list):
         sent = [sent]
 
-    for src_msg, dst_msg in zip(msgs, sent):
+    for src_msg, dst_msg in zip(msgs, sent, strict=False):
         await repo.save(src_chat_id, src_msg.id, target_chat_id, dst_msg.id)
 
     log.info(

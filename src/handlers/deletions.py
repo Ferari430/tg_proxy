@@ -34,7 +34,12 @@ async def handle_delete(
             mirror_msg_id = mapping.src_msg_id
 
         try:
-            await with_flood_wait(lambda: client.delete_messages(mirror_chat_id, [mirror_msg_id]))
+            chat, msg = mirror_chat_id, mirror_msg_id
+
+            async def _do_delete(c: int = chat, m: int = msg) -> None:
+                await client.delete_messages(c, [m])
+
+            await with_flood_wait(_do_delete)
         except Exception:
             log.exception(
                 "delete.mirror_failed",
