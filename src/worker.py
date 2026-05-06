@@ -45,6 +45,13 @@ class UserbotWorker:
 
         await self._client.connect()
 
+        # Pre-resolve chat entities so Telethon's chats= filter works on any host
+        for chat_id in self._get_monitored_chats():
+            try:
+                await self._client.get_entity(chat_id)
+            except Exception:
+                log.warning("worker.entity_not_found", chat_id=chat_id)
+
         if catch_up:
             await self._client.catch_up()
 
@@ -99,7 +106,7 @@ class UserbotWorker:
 
         self._client.add_event_handler(
             on_album,
-            events.Album(chats=monitored, incoming=True),
+            events.Album(chats=monitored),
         )
 
         async def on_reaction(update: UpdateMessageReactions) -> None:

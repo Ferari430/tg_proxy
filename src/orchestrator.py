@@ -77,19 +77,19 @@ class Orchestrator:
             return 0
 
         now = datetime.now(self._tz)
-        hour = now.hour
+        current = now.hour * 60 + now.minute
 
         for i, account in enumerate(self._cfg.accounts):
             if account.active_hours is None:
                 return i
-            start = account.active_hours.start
-            end = account.active_hours.end
+            start = account.active_hours.start_minutes
+            end = account.active_hours.end_minutes
             # Handle ranges that cross midnight (e.g. 20:00–08:00)
             if start < end:
-                if start <= hour < end:
+                if start <= current < end:
                     return i
             else:
-                if hour >= start or hour < end:
+                if current >= start or current < end:
                     return i
 
         return 0  # fallback: first account

@@ -4,6 +4,7 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.types import Message, ReactionEmoji
 
 from src.core.config import AppConfig
+from src.core.flood import with_flood_wait
 from src.core.logging import get_logger
 from src.db.repository import MappingRepository
 
@@ -32,7 +33,9 @@ async def handle_edit(
         mirror_chat_id, mirror_msg_id = mapping.src_chat_id, mapping.src_msg_id
 
     try:
-        await client.edit_message(mirror_chat_id, mirror_msg_id, msg.text, formatting_entities=msg.entities)
+        await with_flood_wait(lambda: client.edit_message(
+            mirror_chat_id, mirror_msg_id, msg.text, formatting_entities=msg.entities,
+        ))
         log.info(
             "message.edited",
             src_chat=src_chat_id,
@@ -51,8 +54,8 @@ async def handle_edit(
                     top_count = rc.count
                     top_reaction = rc.reaction
 
-        await client(SendReactionRequest(
+        await with_flood_wait(lambda: client(SendReactionRequest(
             peer=mirror_chat_id,
             msg_id=mirror_msg_id,
             reaction=[top_reaction] if top_reaction is not None else [],
-        ))
+        )))

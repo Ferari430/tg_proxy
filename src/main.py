@@ -16,16 +16,23 @@ async def main() -> None:
     setup_logging(level=os.getenv("LOG_LEVEL", "INFO"))
     log = get_logger(__name__)
 
-    config_path = Path(os.getenv("CONFIG_PATH", "config.yaml"))
-    cfg = load_config(config_path)
-    log.info("config.loaded", accounts=len(cfg.accounts), mappings=len(cfg.mappings))
+    try:
+        config_path = Path(os.getenv("CONFIG_PATH", "config.yaml"))
+        cfg = load_config(config_path)
+        log.info("config.loaded", accounts=len(cfg.accounts), mappings=len(cfg.mappings))
 
-    dsn = os.environ["DATABASE_URL"]
-    pool = await create_pool(dsn)
-    repo = MappingRepository(pool)
+        dsn = os.environ.get("DATABASE_URL")
+        if dsn is None:
+            raise ValueError("DATABASE_URL environment variable not set")
 
-    orchestrator = Orchestrator(cfg, repo)
-    await orchestrator.run()
+        pool = await create_pool(dsn)
+        repo = MappingRepository(pool)
+
+        orchestrator = Orchestrator(cfg, repo)
+        await orchestrator.run()
+    except Exception:
+        log.exception("startup_failed")
+        raise
 
 
 if __name__ == "__main__":

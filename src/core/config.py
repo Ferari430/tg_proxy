@@ -12,8 +12,18 @@ class TelegramConfig(BaseModel):
 
 
 class ActiveHours(BaseModel):
-    start: int  # 0-23
-    end: int    # 0-23
+    start: str  # "HH:MM"
+    end: str    # "HH:MM"
+
+    @property
+    def start_minutes(self) -> int:
+        h, m = map(int, self.start.split(":"))
+        return h * 60 + m
+
+    @property
+    def end_minutes(self) -> int:
+        h, m = map(int, self.end.split(":"))
+        return h * 60 + m
 
 
 class AccountConfig(BaseModel):

@@ -5,6 +5,7 @@ from telethon import TelegramClient, events
 from telethon.tl.types import Message
 
 from src.core.config import AppConfig
+from src.core.flood import with_flood_wait
 from src.core.logging import get_logger
 from src.db.repository import MappingRepository
 
@@ -19,6 +20,10 @@ async def handle_album(
 ) -> None:
     msgs: list[Message] = event.messages
     if not msgs:
+        return
+
+    # Skip albums sent by the userbot itself (outgoing)
+    if msgs[0].out:
         return
 
     first = msgs[0]
@@ -46,13 +51,14 @@ async def handle_album(
     delay = random.uniform(cfg.human_delay.min_seconds, cfg.human_delay.max_seconds)
     await asyncio.sleep(delay)
 
-    sent = await client.send_file(
+    files = [m.media for m in msgs]
+    sent = await with_flood_wait(lambda: client.send_file(
         target_chat_id,
-        file=[m.media for m in msgs],
+        file=files,
         caption=first.text or None,
         formatting_entities=first.entities if first.text else None,
         reply_to=reply_to,
-    )
+    ))
 
     # send_file returns a list when multiple files are sent
     if not isinstance(sent, list):

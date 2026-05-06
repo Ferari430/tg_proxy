@@ -4,11 +4,18 @@ telegram:
 
 accounts:
   - session_file: "sessions/account1.session"
-    # active_hours не задан → аккаунт работает 24/7 (удобно для тестирования)
+    active_hours: {start: "08:00", end: "05:01"}
+
+  - session_file: "sessions/account2.session"
+    active_hours: {start: "05:01", end: "08:00"}
+
 
 mappings:
   - merchant_chat: -1003944954320
     support_chat: -1003943086535
+
+  - merchant_chat: -1003867651775
+    support_chat: -1003782554400
 
 human_delay:
   min_seconds: 1

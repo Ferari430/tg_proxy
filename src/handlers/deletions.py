@@ -1,6 +1,7 @@
 from telethon import TelegramClient, events
 
 from src.core.config import AppConfig
+from src.core.flood import with_flood_wait
 from src.core.logging import get_logger
 from src.db.repository import MappingRepository
 
@@ -33,7 +34,7 @@ async def handle_delete(
             mirror_msg_id = mapping.src_msg_id
 
         try:
-            await client.delete_messages(mirror_chat_id, [mirror_msg_id])
+            await with_flood_wait(lambda: client.delete_messages(mirror_chat_id, [mirror_msg_id]))
         except Exception:
             log.exception(
                 "delete.mirror_failed",

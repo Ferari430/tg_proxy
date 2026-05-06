@@ -4,6 +4,7 @@ from telethon.tl.types import ReactionEmoji, UpdateMessageReactions
 from telethon.utils import get_peer_id
 
 from src.core.config import AppConfig
+from src.core.flood import with_flood_wait
 from src.core.logging import get_logger
 from src.db.repository import MappingRepository
 
@@ -41,11 +42,11 @@ async def handle_reaction(
 
     reaction_list = [top_reaction] if top_reaction is not None else []
 
-    await client(SendReactionRequest(
+    await with_flood_wait(lambda: client(SendReactionRequest(
         peer=mirror_chat_id,
         msg_id=mirror_msg_id,
         reaction=reaction_list,
-    ))
+    )))
 
     log.info(
         "reaction.mirrored",

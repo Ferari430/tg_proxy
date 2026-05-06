@@ -5,6 +5,7 @@ from telethon import TelegramClient, events
 from telethon.tl.types import Message
 
 from src.core.config import AppConfig
+from src.core.flood import with_flood_wait
 from src.core.logging import get_logger
 from src.db.repository import MappingRepository
 
@@ -58,20 +59,20 @@ async def handle_new_message(
     await _human_delay(cfg)
 
     if msg.media is not None:
-        sent = await client.send_file(
+        sent = await with_flood_wait(lambda: client.send_file(
             target_chat_id,
             file=msg.media,
             caption=msg.text,
             formatting_entities=msg.entities,
             reply_to=reply_to,
-        )
+        ))
     else:
-        sent = await client.send_message(
+        sent = await with_flood_wait(lambda: client.send_message(
             target_chat_id,
             msg.text,
             formatting_entities=msg.entities,
             reply_to=reply_to,
-        )
+        ))
 
     await repo.save(src_chat_id, msg.id, target_chat_id, sent.id)
 
